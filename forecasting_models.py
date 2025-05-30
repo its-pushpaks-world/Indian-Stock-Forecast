@@ -10,6 +10,7 @@ def prophet_forecast(df, periods=7):
     m.fit(df_prophet)
     future = m.make_future_dataframe(periods=periods, freq='B')  # Business days only
     forecast = m.predict(future)
+    forecast['yhat'] = forecast['yhat'].clip(lower=0)  # No negative prices
     return forecast
 
 def evaluate_model(y_true, y_pred):
