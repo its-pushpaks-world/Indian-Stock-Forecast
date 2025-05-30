@@ -5,7 +5,6 @@ pandas
 numpy
 ta
 prophet
-pmdarima
 scikit-learn
 transformers
 torch

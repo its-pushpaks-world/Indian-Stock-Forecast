@@ -1,6 +1,5 @@
 
 from prophet import Prophet
-from pmdarima import auto_arima
 from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error
 import numpy as np
 
@@ -10,11 +9,6 @@ def prophet_forecast(df):
     model.fit(df_prophet)
     future = model.make_future_dataframe(periods=7)
     forecast = model.predict(future)
-    return forecast
-
-def arima_forecast(df):
-    model = auto_arima(df['Close'], seasonal=False, stepwise=True, suppress_warnings=True)
-    forecast = model.predict(n_periods=7)
     return forecast
 
 def evaluate_model(y_true, y_pred):
