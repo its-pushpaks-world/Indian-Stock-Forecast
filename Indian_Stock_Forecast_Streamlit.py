@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 from data_preprocessing import fetch_stock_data
 from sentiment_analysis import get_news_sentiment
-from forecasting_models import prophet_forecast, arima_forecast
+from forecasting_models import prophet_forecast
 from lstm_model import train_lstm
 
 st.set_page_config(page_title="Indian Stock Forecast Pro", layout="wide")
