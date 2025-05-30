@@ -34,6 +34,18 @@ if ticker:
             st.write(f'{item.get("sentiment","")} (Score: {score:.2f})')
             st.write("---")
 
+        st.subheader("Sentiment Analysis")
+        sentiments = get_news_sentiment(ticker+".NS")
+        all_zero = all(abs(item.get("score", 0)) < 0.01 for item in sentiments)
+        if all_zero:
+            st.write("Sentiment: All news is neutral/unclear")
+        else:
+            for item in sentiments:
+                score = item.get("score", 0)
+                st.write(item["text"])
+                st.write(f'{item.get("sentiment","")} (Score: {score:.2f})')
+                st.write("---")        
+
         st.subheader("Forecast Chart")
         st.line_chart(forecast.set_index('ds')['yhat'])
 
