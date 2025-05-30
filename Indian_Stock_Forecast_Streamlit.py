@@ -30,22 +30,25 @@ if ticker:
 
         st.subheader("Sentiment Analysis")
         sentiments = get_news_sentiment(ticker+".NS")
-        scores = [item.get("score", 0) for item in sentiments]
-        all_similar = all(abs(scores[0] - s) < 0.01 for s in scores)
-
-        if all_similar:
-            item = sentiments[0]
-            score = item.get("score", 0)
-            st.markdown(f"**News:** {item.get('text', 'N/A')}")  
-            st.markdown(f"**Sentiment:** {item.get('sentiment', '')}")
-            st.markdown(f"**Score:** {score:.2f}")
+        if not sentiments:
+            st.markdown("**News:** No news available")
         else:
-            for item in sentiments:
+            scores = [item.get("score", 0) for item in sentiments]
+            all_similar = all(abs(scores[0] - s) < 0.01 for s in scores)
+
+            if all_similar:
+                item = sentiments[0]
                 score = item.get("score", 0)
                 st.markdown(f"**News:** {item.get('text', 'N/A')}")
                 st.markdown(f"**Sentiment:** {item.get('sentiment', '')}")
                 st.markdown(f"**Score:** {score:.2f}")
-                st.write("---")
+            else:
+                for item in sentiments:
+                    score = item.get("score", 0)
+                    st.markdown(f"**News:** {item.get('text', 'N/A')}")
+                    st.markdown(f"**Sentiment:** {item.get('sentiment', '')}")
+                    st.markdown(f"**Score:** {score:.2f}")
+                    st.write("---")
 
         st.subheader("Forecast Chart")
         st.line_chart(forecast.set_index('ds')['yhat'])
