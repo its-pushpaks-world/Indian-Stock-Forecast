@@ -4,6 +4,7 @@ from data_preprocessing import fetch_stock_data
 from sentiment_analysis import get_news_sentiment
 from forecasting_models import prophet_forecast, evaluate_model
 import numpy as np
+import pandas as pd
 
 st.set_page_config(page_title="Indian Stock Forecast Pro", layout="centered")
 st.title("📊 Indian Stock Forecast Pro")
@@ -13,8 +14,19 @@ if ticker:
     try:
         df = fetch_stock_data(ticker)
         last_close = df['Close'].iloc[-1]
+        min_close = df['Close'].min() * 0.9
+
         forecast = prophet_forecast(df, periods=7)
         forecast = forecast[forecast['ds'].dt.weekday < 5]  # Remove weekends
+
+        # Remove public holidays (sample list, can be extended)
+        indian_holidays = pd.to_datetime([
+            "2025-01-26", "2025-08-15", "2025-10-02", "2025-11-12", "2025-12-25"
+        ])
+        forecast = forecast[~forecast['ds'].isin(indian_holidays)]
+
+        # Clip to 90% of minimum close to avoid unrealistic negative dips
+        forecast['yhat'] = forecast['yhat'].clip(lower=min_close)
 
         forecast_today = forecast['yhat'].iloc[-6]
         forecast_tomorrow = forecast['yhat'].iloc[-5]
