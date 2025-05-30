@@ -34,7 +34,7 @@ if ticker:
             st.write("---")
 
         st.subheader("Forecast Chart")
-        st.line_chart(forecast.set_index('ds')['yhat'])
+        st.line_chart(forecast.set_index('ds')['RS'])
 
     except Exception as e:
         st.error(f"Error: {e}")
