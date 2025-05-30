@@ -30,7 +30,8 @@ if ticker:
         st.subheader("Sentiment Analysis")
         for item in get_news_sentiment(ticker+".NS"):
             st.write(item["text"])
-            st.write(f'{item.get("sentiment","")} (Score: {item.get("score",""):.2f})')
+            score = item.get("score",0)
+            st.write(f'{item.get("sentiment","")} (Score: {score:.2f})')
             st.write("---")
 
         st.subheader("Forecast Chart")
