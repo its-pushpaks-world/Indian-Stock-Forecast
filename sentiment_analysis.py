@@ -14,6 +14,6 @@ def get_news_sentiment(ticker):
         inputs = tokenizer(txt, return_tensors="pt", truncation=True)
         outputs = model(**inputs)
         probs = softmax(outputs.logits.detach().numpy()[0])
-        sentiment = {"text": txt, "positive": float(probs[0]), "neutral": float(probs[1]), "negative": float(probs[2]), "score": max(probs)}
+        sentiment = {"text": txt, "positive": float(probs[0]), "neutral": float(probs[1]), "negative": float(probs[2])}
         results.append(sentiment)
     return results
