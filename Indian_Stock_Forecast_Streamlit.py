@@ -2,12 +2,11 @@
 import streamlit as st
 from data_preprocessing import fetch_stock_data
 from sentiment_analysis import get_news_sentiment
-from forecasting_models import prophet_forecast
-from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error
+from forecasting_models import prophet_forecast, evaluate_model
 import numpy as np
 
 st.set_page_config(page_title="Indian Stock Forecast Pro", layout="centered")
-st.title("Indian Stock Forecast Pro")
+st.title("📊 Indian Stock Forecast Pro")
 
 ticker = st.text_input("Enter NSE symbol (e.g., RELIANCE)").upper().strip()
 if ticker:
@@ -19,7 +18,7 @@ if ticker:
         st.subheader("Sentiment Analysis")
         for item in get_news_sentiment(ticker+".NS"):
             st.write(item["text"])
-            st.write(f'Pos: {item["positive"]:.2f}, Neu: {item["neutral"]:.2f}, Neg: {item["negative"]:.2f}')
+            st.write(f'{item["sentiment"]} (Score: {item["score"]:.2f})')
             st.write("---")
 
         forecast = prophet_forecast(df)
@@ -28,8 +27,7 @@ if ticker:
         actuals = df.reset_index()[['Date','Close']].rename(columns={'Date':'ds','Close':'y'})
         merged = actuals.set_index('ds').join(forecast.set_index('ds')[['yhat']]).dropna()
         eval_df = merged.tail(30)
-        mape = mean_absolute_percentage_error(eval_df['y'], eval_df['yhat'])*100
-        rmse = mean_squared_error(eval_df['y'], eval_df['yhat'], squared=False)
+        mape, rmse = evaluate_model(eval_df['y'], eval_df['yhat'])
 
         st.subheader("Forecasts")
         st.write(f"Current Price: ₹{df['Close'].iloc[-1]:.2f}")

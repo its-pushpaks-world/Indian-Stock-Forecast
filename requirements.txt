@@ -6,5 +6,4 @@ numpy
 ta
 prophet
 scikit-learn
-transformers
-torch
+textblob
