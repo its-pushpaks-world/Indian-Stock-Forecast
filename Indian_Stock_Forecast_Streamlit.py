@@ -36,15 +36,15 @@ if ticker:
         if all_similar:
             item = sentiments[0]
             score = item.get("score", 0)
-            st.markdown(f"**News:** {item.get('text', 'N/A')}  
-**Sentiment:** {item.get('sentiment', '')}  
-**Score:** {score:.2f}")
+            st.markdown(f"**News:** {item.get('text', 'N/A')}")  
+            st.markdown(f**Sentiment:** {item.get('sentiment', '')}")
+            st.markdown(f**Score:** {score:.2f}")
         else:
             for item in sentiments:
                 score = item.get("score", 0)
-                st.markdown(f"**News:** {item.get('text', 'N/A')}  
-**Sentiment:** {item.get('sentiment', '')}  
-**Score:** {score:.2f}")
+                st.markdown(f"**News:** {item.get('text', 'N/A')}")
+                st.markdown(f**Sentiment:** {item.get('sentiment', '')}")
+                st.markdown(f**Score:** {score:.2f}")
                 st.write("---")
 
         st.subheader("Forecast Chart")
