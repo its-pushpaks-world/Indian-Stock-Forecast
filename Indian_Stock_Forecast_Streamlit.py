@@ -22,8 +22,7 @@ if ticker:
         recommendation = "BUY" if forecast_next_week > last_close * 1.02 else "SELL" if forecast_next_week < last_close * 0.98 else "HOLD"
 
         st.markdown(f"### Recommendation: **{recommendation}**")
-        st.markdown(f"**Current Price:** ₹{last_close:.2f}  
-"
+        st.markdown(f"**Current Price:** ₹{last_close:.2f} \n
                     f"**Forecast Today:** ₹{forecast_today:.2f}  
 "
                     f"**Forecast Tomorrow:** ₹{forecast_tomorrow:.2f}  
