@@ -1,7 +1,6 @@
 
 import yfinance as yf
 import pandas as pd
-import numpy as np
 from ta.momentum import RSIIndicator
 from ta.trend import EMAIndicator, MACD
 

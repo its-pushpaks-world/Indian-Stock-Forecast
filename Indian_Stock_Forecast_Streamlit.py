@@ -1,40 +1,48 @@
 
 import streamlit as st
-import pandas as pd
 from data_preprocessing import fetch_stock_data
 from sentiment_analysis import get_news_sentiment
 from forecasting_models import prophet_forecast
-from lstm_model import train_lstm
+from sklearn.metrics import mean_absolute_percentage_error, mean_squared_error
+import numpy as np
 
-st.set_page_config(page_title="Indian Stock Forecast Pro", layout="wide")
-st.title("📊 Indian Stock Forecast Pro")
+st.set_page_config(page_title="Indian Stock Forecast Pro", layout="centered")
+st.title("Indian Stock Forecast Pro")
 
-symbol = st.text_input("Enter NSE Symbol (e.g., RELIANCE)")
-
-if symbol:
+ticker = st.text_input("Enter NSE symbol (e.g., RELIANCE)").upper().strip()
+if ticker:
     try:
-        df = fetch_stock_data(symbol)
-        st.write("### Latest Data")
+        df = fetch_stock_data(ticker)
+        st.subheader("Latest Data")
         st.dataframe(df.tail())
 
-        # Forecasts
-        forecast_p = prophet_forecast(df)
-        forecast_a = arima_forecast(df)
-        forecast_l = train_lstm(df)
+        st.subheader("Sentiment Analysis")
+        for item in get_news_sentiment(ticker+".NS"):
+            st.write(item["text"])
+            st.write(f'Pos: {item["positive"]:.2f}, Neu: {item["neutral"]:.2f}, Neg: {item["negative"]:.2f}')
+            st.write("---")
 
-        st.write("### Forecasts")
-        st.write(f"Prophet forecast (Next week): ₹{forecast_p['yhat'].iloc[-1]:.2f}")
-        st.write(f"ARIMA forecast (Next week): ₹{forecast_a[-1]:.2f}")
-        st.write(f"LSTM forecast (Next day): ₹{forecast_l:.2f}")
+        forecast = prophet_forecast(df)
+        pred_today = forecast['yhat'].iloc[-(7+1)]
+        pred_next = forecast['yhat'].iloc[-1]
+        actuals = df.reset_index()[['Date','Close']].rename(columns={'Date':'ds','Close':'y'})
+        merged = actuals.set_index('ds').join(forecast.set_index('ds')[['yhat']]).dropna()
+        eval_df = merged.tail(30)
+        mape = mean_absolute_percentage_error(eval_df['y'], eval_df['yhat'])*100
+        rmse = mean_squared_error(eval_df['y'], eval_df['yhat'], squared=False)
 
-        # Sentiment
-        st.write("### Sentiment Analysis")
-        sentiments = get_news_sentiment(symbol)
-        for item in sentiments:
-            st.write(f"**{item['text']}**")
-            st.write(f"Positive: {item['positive']:.2f}, Neutral: {item['neutral']:.2f}, Negative: {item['negative']:.2f}")
+        st.subheader("Forecasts")
+        st.write(f"Current Price: ₹{df['Close'].iloc[-1]:.2f}")
+        st.write(f"Forecast Today: ₹{pred_today:.2f}")
+        st.write(f"Forecast Next Week: ₹{pred_next:.2f}")
+        st.subheader("Accuracy (Last 30 days)")
+        st.write(f"MAPE: {mape:.2f}%")
+        st.write(f"RMSE: {rmse:.2f}")
+
+        st.subheader("Forecast Chart")
+        st.line_chart(forecast.set_index('ds')['yhat'])
 
     except Exception as e:
         st.error(f"Error: {e}")
 else:
-    st.info("Enter an NSE stock symbol to start.")
+    st.info("Enter a ticker to start.")
