@@ -7,12 +7,22 @@ def prophet_forecast(df, periods=7):
     df_prophet = df.reset_index()[['Date','Close']].rename(columns={'Date':'ds','Close':'y'})
     m = Prophet(daily_seasonality=False)
     m.fit(df_prophet)
-    future = m.make_future_dataframe(periods=periods+14, freq='B')  # Extra buffer
+    future = m.make_future_dataframe(periods=periods+14, freq='B')  # Buffer for filtering
     forecast = m.predict(future)
+    
+    forecast = forecast[forecast['ds'] >= pd.Timestamp.today().normalize()]  # Start from today
     forecast = forecast[forecast['ds'].dt.weekday < 5]  # Remove weekends
-    indian_holidays = pd.to_datetime(["2025-01-26", "2025-08-15", "2025-10-02", "2025-11-12", "2025-12-25"])
+    
+    indian_holidays = pd.to_datetime([
+        "2025-01-26", "2025-08-15", "2025-10-02", "2025-11-12", "2025-12-25"
+    ])
     forecast = forecast[~forecast['ds'].isin(indian_holidays)]
-    forecast = forecast.tail(periods)  # Get final forecast period
+    
+    # Clip values to 90% of historical min
+    min_close = df['Close'].min() * 0.9
+    forecast['yhat'] = forecast['yhat'].clip(lower=min_close)
+    
+    forecast = forecast.head(periods)  # Limit to next 7 valid trading days
     return forecast
 
 def evaluate_model(y_true, y_pred):
