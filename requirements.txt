@@ -1,5 +1,11 @@
+
 streamlit
 yfinance
-ta
 pandas
 numpy
+ta
+prophet
+pmdarima
+scikit-learn
+transformers
+torch
